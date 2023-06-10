@@ -1,16 +1,9 @@
 #include <Adafruit_PWMServoDriver.h>
-#include <DifferentialSteering.h>
 #include <PS2X_lib.h>
 #include <Steer.h>
 
-// 1st motor slot (pins 8, 9): left wheel
-// 2nd motor slot (pins 10, 11): right wheel
 // 3rd motor slot (pins 12, 13): grabber
 // 4th motor slot (pins 14, 15): shooter
-#define leftFwd 8
-#define leftBck 9
-#define rightFwd 10
-#define rightBck 11
 #define grabberFwd 12
 #define grabberBck 13
 #define shooterFwd 14
