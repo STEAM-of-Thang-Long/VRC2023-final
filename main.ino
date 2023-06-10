@@ -1,23 +1,16 @@
 #include <Adafruit_PWMServoDriver.h>
 #include <PS2X_lib.h>
 #include <Steer.h>
-
-// 3rd motor slot (pins 12, 13): grabber
-// 4th motor slot (pins 14, 15): shooter
-#define grabberFwd 12
-#define grabberBck 13
-#define shooterFwd 14
-#define shooterBck 15
+#include <Grabber.h>
+#include <Shooter.h>
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-DifferentialSteering diffSteer;
 PS2X ps2x;
 
-bool grabberOn = 0;
-bool grabberClockwise = 1;
-bool shooterOn = 0;
+bool grabberOn = false;
+bool grabberClockwise = true;
+bool shooterOn = false;
 int maxSpeed;
-char debug[100];  // at most 100 characters
 
 bool coast = false;
 bool single = true;
@@ -58,26 +51,6 @@ void beginLoop()
         single = !single;
 }
 
-void grabber()
-{
-    // Set pwm
-    pwm.setPWM(grabberFwd, 0, (grabberOn? (grabberClockwise? maxSpeed : 0) : 0));
-    pwm.setPWM(grabberBck, 0, (grabberOn? (grabberClockwise? 0 : maxSpeed) : 0));
-    
-    sprintf(debug, "Grabber state  :  %s\n", (grabberOn? (grabberClockwise? "Clockwise" : "Counterclockwise") : "Off"));
-    Serial.print(debug);
-}
-
-void shooter()
-{
-    // Set pwm
-    pwm.setPWM(shooterFwd, 0, (shooterOn? maxSpeed : 0));
-    pwm.setPWM(shooterBck, 0, 0);
-    
-    sprintf(debug, "Shooter state  :  %s\n", (shooterOn? "On" : "Off"));
-    Serial.print(debug);
-}
-
 void endLoop()
 {
     // A delay of 30 milliseconds is added at the end
@@ -90,7 +63,7 @@ void loop()
 {
     beginLoop();
     steer(255-ps2x.Analog(PSS_LY), ps2x.Analog(PSS_RX), 255-ps2x.Analog(PSS_RY), maxSpeed, single, coast);
-    grabber();
-    shooter();
+    grabber(grabberOn, grabberClockwise, maxSpeed);
+    shooter(shooterOn, maxSpeed);
     endLoop();
 }
