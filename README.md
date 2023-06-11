@@ -4,7 +4,7 @@
 - [Adafruit-PWM-Servo-Driver-Library](https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library) (pwm, servo pca9685)
 
 ### Thông tin về mạch Makerbot Banhmi
-![](https://via.makerviet.org/vi/docs/3_robotics-with-via/2_motor-control-with-via/via_motorshield_ports.png)
+- [Tài liệu về mạch](https://via.makerviet.org/vi/docs/)
 
 ### Hướng dẫn setup PlatformIO trong VSCode để lập trình project này
 - [Video hướng dẫn](https://www.youtube.com/watch?v=JzyWrPYh2Kg)
