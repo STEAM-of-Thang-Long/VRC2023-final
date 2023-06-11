@@ -44,6 +44,9 @@ int ly;  // Analog of PSS_LY
 int rx;  // Analog of PSS_RX
 int ry;  // Analog of PSS_RY
 
+// Get timestamp for `endLoop` function
+unsigned long time = millis();
+
 
 void setup()    // Keep it unchanged, as it's perfect :)
 {
@@ -159,7 +162,9 @@ void endLoop()
 {
   // A delay of 30 milliseconds is added at the end
   // of each loop iteration to control the loop rate.
-  delay(30);
+  // Note: I don't want to use `delay(30)` as it will delay the whole system
+  while (millis() - time <= 30);   // Do nothing
+  time = millis();
 }
 
 void loop()
