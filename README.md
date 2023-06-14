@@ -9,5 +9,4 @@
 ### Hướng dẫn setup PlatformIO trong VSCode để lập trình project này
 - [Video hướng dẫn](https://www.youtube.com/watch?v=JzyWrPYh2Kg)
 
-
-##### Code written by brownfox2k6 (Nguyễn Trọng Đại)
+##### Code written by ![brownfox2k6](https://www.facebook.com/brownfox2k6) (Nguyễn Trọng Đại) and ![nhakanasi](https://www.facebook.com/an.toduy.3) (Tô Duy An)
