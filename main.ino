@@ -131,7 +131,7 @@ void dualSteer(int anaL, int anaR)
   curLeftFwd = anaL >= 142? map(anaL, 142, 255, 0, maxSpeed) : 0;
   curLeftBck = anaL <= 112? map(anaL, 0, 112, 0, maxSpeed) : 0;
   curRightFwd = anaR >= 142? map(anaR, 142, 255, 0, maxSpeed) : 0;
-  curRightFwd = anaR <= 112? map(anaR, 0, 112, 0, maxSpeed) : 0;
+  curRightBck = anaR <= 112? map(anaR, 0, 112, 0, maxSpeed) : 0;
 }
 
 void steer()
