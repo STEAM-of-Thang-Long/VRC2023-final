@@ -1,23 +1,11 @@
 #include <Adafruit_PWMServoDriver.h>
 #include <DifferentialSteering.h>
 #include <PS2X_lib.h>
+#include "constants.h"
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 DifferentialSteering diffSteer;
 PS2X ps2x;
-
-// 1st motor slot (pins 8, 9): left wheel
-#define leftFwd 8
-#define leftBck 9
-// 2nd motor slot (pins 10, 11): right wheel
-#define rightFwd 10
-#define rightBck 11
-// 3rd motor slot (pins 12, 13): grabber
-#define grabberFwd 12
-#define grabberBck 13
-// 4th motor slot (pins 14, 15): shooter
-#define shooterFwd 14
-#define shooterBck 15
 
 // maximum allowed pwm output for 4 motors
 int maxSpeed;
@@ -50,18 +38,14 @@ unsigned long t = millis();
 
 void setup()    // Keep it unchanged, as it's perfect :)
 {
-  Serial.begin(115000);
+  Serial.begin(BAUD_RATE);
   Wire.begin();
   pwm.begin();
-  pwm.setOscillatorFrequency(27000000);
-  pwm.setPWMFreq(50);
-  Wire.setClock(400000);
-
-  // No pressures + No rumble (don't care about it)
-  // ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_ATT, PS2_DAT, false, false);
-  ps2x.config_gamepad(14, 13, 15, 12, false, false);
-
-  diffSteer.begin(64);
+  pwm.setOscillatorFrequency(OSC_FREQ);
+  pwm.setPWMFreq(PWM_FREQ);
+  Wire.setClock(CLOCK_FREQ);
+  ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_ATT, PS2_DAT, PRESSURES, RUMBLE);
+  diffSteer.begin(PIV_Y_LIMIT);
 }
 
 void beginLoop()
@@ -70,7 +54,7 @@ void beginLoop()
   ps2x.read_gamepad(false, 0);
 
   // Initialize maximum allowed speed (hold PSB_R2 to enable Fullspeed)
-  maxSpeed = ps2x.Button(PSB_R2)? 4095 : 3200;
+  maxSpeed = ps2x.Button(PSB_R2)? STEER_SPEED_MAX : STEER_SPEED_DEF;
 
   // Toggle (if you don't know what is bitwise XOR, search for it)
   shooterOn ^= ps2x.ButtonPressed(PSB_R1);        // Change state of shooter
@@ -87,21 +71,21 @@ void beginLoop()
 void coastMode()  // Bug ơi là bug, bug vcl, đừng dùng cái này làm ơn 🙏🙏🙏
 {
   for (int spd = prevLeftFwd; spd != curLeftFwd; (prevLeftFwd > curLeftFwd? --spd : ++spd))
-    pwm.setPWM(leftFwd, 0, spd);
+    pwm.setPWM(LEFT_FWD, 0, spd);
   for (int spd = prevLeftBck; spd != curLeftBck; (prevLeftBck > curLeftBck? --spd : ++spd))
-    pwm.setPWM(leftBck, 0, spd);
+    pwm.setPWM(LEFT_BCK, 0, spd);
   for (int spd = prevRightFwd; spd != curRightFwd; (prevRightFwd > curRightFwd? --spd : ++spd))
-    pwm.setPWM(rightFwd, 0, spd);
+    pwm.setPWM(RIGHT_FWD, 0, spd);
   for (int spd = prevRightBck; spd != curRightBck; (prevRightBck > curRightBck? --spd : ++spd))
-    pwm.setPWM(rightBck, 0, spd);
+    pwm.setPWM(RIGHT_BCK, 0, spd);
 }
 
 void brakeMode()
 {
-  pwm.setPWM(leftFwd, 0, curLeftFwd);
-  pwm.setPWM(leftBck, 0, curLeftBck);
-  pwm.setPWM(rightFwd, 0, curRightFwd);
-  pwm.setPWM(rightBck, 0, curRightBck);
+  pwm.setPWM(LEFT_FWD, 0, curLeftFwd);
+  pwm.setPWM(LEFT_BCK, 0, curLeftBck);
+  pwm.setPWM(RIGHT_FWD, 0, curRightFwd);
+  pwm.setPWM(RIGHT_BCK, 0, curRightBck);
 }
 
 void singleSteer(int anaX, int anaY)
@@ -148,22 +132,19 @@ void steer()
 
 void grabber()
 {
-  pwm.setPWM(grabberFwd, 0, (grabberOn? (grabberClockwise? maxSpeed : 0) : 0));
-  pwm.setPWM(grabberBck, 0, (grabberOn? (grabberClockwise? 0 : maxSpeed) : 0));
+  pwm.setPWM(GRABBER_FWD, 0, (grabberOn? (grabberClockwise? GRABBER_SPEED : 0) : 0));
+  pwm.setPWM(GRABBER_BCK, 0, (grabberOn? (grabberClockwise? 0 : GRABBER_SPEED) : 0));
 }
 
 void shooter()
 {
-  pwm.setPWM(shooterFwd, 0, (shooterOn? maxSpeed : 0));
-  pwm.setPWM(shooterBck, 0, 0);
+  pwm.setPWM(SHOOTER_FWD, 0, (shooterOn? SHOOTER_SPEED : 0));
+  pwm.setPWM(SHOOTER_BCK, 0, 0);
 }
 
 void endLoop()
 {
-  // A delay of 30 milliseconds is added at the end
-  // of each loop iteration to control the loop rate.
-  // Note: I don't want to use `delay(30)` as it will delay the whole system
-  while (millis() - t <= 30);   // Do nothing
+  while (millis() - t <= DELAY_MS);   // Do nothing
   t = millis();
 }
 
