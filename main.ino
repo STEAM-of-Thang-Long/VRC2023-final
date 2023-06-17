@@ -159,7 +159,7 @@ void shooter()
   pwm.setPWM(SHOOTER_BCK, 0, 0);
 }
 
-void servo_run()   // Thank you Tô Duy An
+void servo()   // Thank you Tô Duy An
 {
   // Control for SERVO 360
   // 80 -> clockwise max speed, 290 - 310 -> stop, 515 -> counter clockwise max speed
