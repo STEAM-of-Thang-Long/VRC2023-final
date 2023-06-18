@@ -10,4 +10,4 @@
 - [Video hướng dẫn](https://www.youtube.com/watch?v=JzyWrPYh2Kg)
 
 ##### Code written by [brownfox2k6](https://www.facebook.com/brownfox2k6) (Nguyễn Trọng Đại) and [nhakanasi](https://www.facebook.com/an.toduy.3) (Tô Duy An)
-##### Also, I would like to thank [Chandramani](https://github.com/Chandramani04) from India who gave me a free ChatGPT account, which helped me to complete this project. Thank you from my heart ❤️
+##### Also, I would like to thank [Chandramani Pathak](https://github.com/Chandramani04) from India who gave me a free ChatGPT account, which helped me to complete this project. Thank you from my heart ❤️
