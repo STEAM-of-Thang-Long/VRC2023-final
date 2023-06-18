@@ -8,8 +8,6 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 DifferentialSteering diffSteer;
 PS2X ps2x;
 
-// maximum allowed pwm output for 4 motors
-int maxSpeed;
 // For `grabber` function
 bool grabberOn = false;
 bool grabberClockwise = true;
