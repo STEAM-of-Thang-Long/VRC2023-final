@@ -8,6 +8,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 DifferentialSteering diffSteer;
 PS2X ps2x;
 
+// maximum allowed pwm output for 4 motors
+int maxSpeed;
 // For `grabber` function
 bool grabberOn = false;
 bool grabberClockwise = true;
@@ -36,6 +38,23 @@ int ry;  // Analog of PSS_RY
 
 // Get timestamp for `endLoop` function
 unsigned long t = millis();
+
+// Steering threads
+void modify(int channel, int prev, int cur, bool coast)
+{
+  if (!coast)
+    pwm.setPWM(channel, 0, cur);
+  else if (prev > cur)
+    for (int spd = prev; spd >= cur; --spd)
+      pwm.setPWM(channel, 0, spd);
+  else
+    for (int spd = prev; spd <= cur; ++spd)
+      pwm.setPWM(channel, 0, spd);
+}
+std::thread thLeftFwd(modify, LEFT_FWD, prevLeftFwd, curLeftFwd, coast);
+std::thread thLeftBck(modify, LEFT_BCK, prevLeftBck, curLeftBck, coast);
+std::thread thRightFwd(modify, RIGHT_FWD, prevRightFwd, curRightFwd, coast);
+std::thread thRightBck(modify, RIGHT_BCK, prevRightBck, curRightBck, coast);
 
 
 void setup()    // Keep it unchanged, as it's perfect :)
@@ -70,37 +89,6 @@ void beginLoop()
   ly = 255 - ps2x.Analog(PSS_LY);
   rx = ps2x.Analog(PSS_RX);
   ry = 255 - ps2x.Analog(PSS_RY);
-}
-
-void coastMode()
-{
-  auto modify = [](int channel, int prev, int cur)
-  {
-    if (prev > cur)
-      for (int spd = prev; spd >= cur; --spd)
-        pwm.setPWM(channel, 0, spd);
-    else
-      for (int spd = prev; spd <= cur; ++spd)
-        pwm.setPWM(channel, 0, spd);
-  };
-
-  std::thread thLeftFwd(modify, LEFT_FWD, prevLeftFwd, curLeftFwd);
-  std::thread thLeftBck(modify, LEFT_BCK, prevLeftBck, curLeftBck);
-  std::thread thRightFwd(modify, RIGHT_FWD, prevRightFwd, curRightFwd);
-  std::thread thRightBck(modify, RIGHT_BCK, prevRightBck, curRightBck);
-
-  thLeftFwd.join();
-  thLeftBck.join();
-  thRightFwd.join();
-  thRightBck.join();
-}
-
-void brakeMode()
-{
-  pwm.setPWM(LEFT_FWD, 0, curLeftFwd);
-  pwm.setPWM(LEFT_BCK, 0, curLeftBck);
-  pwm.setPWM(RIGHT_FWD, 0, curRightFwd);
-  pwm.setPWM(RIGHT_BCK, 0, curRightBck);
 }
 
 void singleSteer(int anaX, int anaY)
@@ -138,8 +126,10 @@ void steer()
   // Select steer style
   single? singleSteer(rx, ry) : dualSteer(ly, ry);
 
-  // Select mode to steer
-  coast? coastMode() : brakeMode();
+  thLeftFwd.join();
+  thLeftBck.join();
+  thRightFwd.join();
+  thRightBck.join();
 
   // Save previous pwm output for coast mode
   std::tie(prevLeftFwd, prevLeftBck, prevRightFwd, prevRightBck) = {curLeftFwd, curLeftBck, curRightFwd, curRightBck};
