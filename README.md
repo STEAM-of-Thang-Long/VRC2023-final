@@ -1,7 +1,14 @@
 ### Các thư viện dùng trong project:
-- [DifferentialSteering](https://github.com/edumardo/DifferentialSteering) (tính toán đầu ra cho hai động cơ DC (di chuyển))
-- [Arduino-PS2X-ESP32-Makerbot](https://github.com/makerviet/Arduino-PS2X-ESP32-Makerbot) (tay cầm PS2)
-- [Adafruit-PWM-Servo-Driver-Library](https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library) (pwm, servo pca9685)
+#### File code chính `main.ino`
+- [DifferentialSteering](https://github.com/edumardo/DifferentialSteering): tính toán đầu ra cho hai động cơ DC (di chuyển))
+- [Arduino-PS2X-ESP32-Makerbot](https://github.com/makerviet/Arduino-PS2X-ESP32-Makerbot): Sử dụng tay cầm PS2 với Makerbot
+- [Adafruit-PWM-Servo-Driver-Library](https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library): Thư viện PWM cho PCA9685
+#### File code test mạch `test.ino`
+- [ESPUI](https://github.com/s00500/ESPUI): tạo giao diện Web server
+- [AsyncTCP](https://github.com/me-no-dev/AsyncTCP): thư viện đi kèm ESPUI
+- [EspAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer): thư viện đi kèm ESPUI
+- [LITTLEFS](https://github.com/lorol/LITTLEFS): thư viện đi kèm ESPUI
+- [ArduinoJson](https://github.com/bblanchon/ArduinoJson): thư viện đi kèm ESPUI
 
 ### Thông tin về mạch Makerbot Banhmi
 - [Tài liệu về mạch](https://via.makerviet.org/vi/docs/)
