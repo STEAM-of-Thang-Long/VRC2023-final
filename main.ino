@@ -1,7 +1,9 @@
+// Final code
+// Implemented by Nguyễn Trọng Đại and Tô Duy An
+
 #include <Adafruit_PWMServoDriver.h>
 #include <DifferentialSteering.h>
 #include <PS2X_lib.h>
-#include <thread>
 #include "constants.h"
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -10,25 +12,20 @@ PS2X ps2x;
 
 // maximum allowed pwm output for 4 motors
 int maxSpeed;
-// For `grabber` function
+// For grabber function
 bool grabberOn = false;
 bool grabberClockwise = true;
-// For `shooter` function
+// For shooter function
 bool shooterOn = false;
-// For `servo` function
+// For servo function
 bool servoOn = false;
 bool servoClockwise = true;
 
 // For steering
-int prevLeftFwd = 0;
-int prevLeftBck = 0;
-int prevRightFwd = 0;
-int prevRightBck = 0;
 int curLeftFwd;
 int curLeftBck;
 int curRightFwd;
 int curRightBck;
-bool coast = false;
 bool single = true;
 
 // joystick analogs
@@ -36,28 +33,11 @@ int ly;  // Analog of PSS_LY
 int rx;  // Analog of PSS_RX
 int ry;  // Analog of PSS_RY
 
-// Get timestamp for `endLoop` function
+// Get timestamp for Delay function
 unsigned long t = millis();
 
-// Steering threads
-void modify(int channel, int prev, int cur, bool coast)
-{
-  if (!coast)
-    pwm.setPWM(channel, 0, cur);
-  else if (prev > cur)
-    for (int spd = prev; spd >= cur; --spd)
-      pwm.setPWM(channel, 0, spd);
-  else
-    for (int spd = prev; spd <= cur; ++spd)
-      pwm.setPWM(channel, 0, spd);
-}
-std::thread thLeftFwd(modify, LEFT_FWD, prevLeftFwd, curLeftFwd, coast);
-std::thread thLeftBck(modify, LEFT_BCK, prevLeftBck, curLeftBck, coast);
-std::thread thRightFwd(modify, RIGHT_FWD, prevRightFwd, curRightFwd, coast);
-std::thread thRightBck(modify, RIGHT_BCK, prevRightBck, curRightBck, coast);
 
-
-void setup()    // Keep it unchanged, as it's perfect :)
+void setup()    // Keep it unchanged, as it's perfect 🙂
 {
   Serial.begin(BAUD_RATE);
   Wire.begin();
@@ -81,10 +61,9 @@ void beginLoop()
   shooterOn ^= ps2x.ButtonPressed(PSB_R1);             // Change state of shooter
   grabberOn ^= ps2x.ButtonPressed(PSB_L1);             // Change state of grabber
   grabberClockwise ^= ps2x.ButtonPressed(PSB_L2);      // Change spin direction of grabber
-  servoOn ^= ps2x.ButtonPressed(PSB_CIRCLE);           // Change state of servo
-  servoClockwise ^= ps2x.ButtonPressed(PSB_TRIANGLE);  // Change spin direction of servo
-  coast ^= ps2x.ButtonPressed(PSB_CROSS);              // Change mode to steer
   single ^= ps2x.ButtonPressed(PSB_SELECT);            // Change steer style
+
+  servoOn = ps2x.ButtonPressed(PSB_CIRCLE);            // Turn on servo
 
   ly = 255 - ps2x.Analog(PSS_LY);
   rx = ps2x.Analog(PSS_RX);
@@ -93,7 +72,7 @@ void beginLoop()
 
 void singleSteer(int anaX, int anaY)
 {
-  // The inputs of `computeMotors` method have to be mapped to [-127, 127]
+  // The inputs of computeMotors method have to be mapped to [-127, 127]
   int mappedX = map(anaX, 0, 255, -127, 127);
   int mappedY = map(anaY, 0, 255, -127, 127);
   diffSteer.computeMotors(mappedX, mappedY);
@@ -126,13 +105,10 @@ void steer()
   // Select steer style
   single? singleSteer(rx, ry) : dualSteer(ly, ry);
 
-  thLeftFwd.join();
-  thLeftBck.join();
-  thRightFwd.join();
-  thRightBck.join();
-
-  // Save previous pwm output for coast mode
-  std::tie(prevLeftFwd, prevLeftBck, prevRightFwd, prevRightBck) = {curLeftFwd, curLeftBck, curRightFwd, curRightBck};
+  pwm.setPWM(LEFT_FWD, 0, curLeftFwd);
+  pwm.setPWM(LEFT_BCK, 0, curLeftBck);
+  pwm.setPWM(RIGHT_FWD, 0, curRightFwd);
+  pwm.setPWM(RIGHT_BCK, 0, curRightBck);
 }
 
 void grabber()
@@ -147,30 +123,29 @@ void shooter()
   pwm.setPWM(SHOOTER_BCK, 0, 0);
 }
 
-void servo()   // Thank you Tô Duy An
+void servo()
 {
-  // Control for SERVO 360
-  // 80 -> clockwise max speed, 290 - 310 -> stop, 515 -> counter clockwise max speed
-  // if we change to servo 180,change the value in range (80;440) (80 = 0 radian, 440 = π radian)
-  pwm.setPWM(SERVO_7, 0, (servoOn? (servoClockwise? 80 : 510) : 300));
-  pwm.setPWM(SERVO_6, 0, (servoOn? (servoClockwise? 80 : 510) : 300));
-  // Control for SERVO 180
-  pwm.setPWM(SERVO_5, 0, (servoOn? (servoClockwise? 80 : 440) : 0));
-  pwm.setPWM(SERVO_4, 0, (servoOn? (servoClockwise? 80 : 440) : 0));
+  if(servoOn)
+  {
+    pwm.setPWM(SERVO_7, 0, 510);
+    Delay(600);
+    pwm.setPWM(SERVO_7, 0, 300);
+  }
 }
 
-void endLoop()
+void Delay(int rate)
 {
-  while (millis() - t <= DELAY_MS);   // Do nothing
+  while (millis() - t <= rate);   // Do nothing
   t = millis();
 }
 
 void loop()
 {
+
   beginLoop();
   steer();
   grabber();
   shooter();
   servo();
-  endLoop();
+  Delay(DELAY_MS);
 }
