@@ -16,5 +16,7 @@
 ### Hướng dẫn setup PlatformIO trong VSCode để lập trình project này
 - [Video hướng dẫn](https://www.youtube.com/watch?v=JzyWrPYh2Kg)
 
+### Lời kết (Epilogue)
 ##### Code written by [brownfox2k6](https://www.facebook.com/brownfox2k6) (Nguyễn Trọng Đại) and [nhakanasi](https://www.facebook.com/an.toduy.3) (Tô Duy An)
 ##### Also, I would like to thank [Chandramani Pathak](https://github.com/Chandramani04) from [Kashi Institute of Technology](https://www.kashiit.ac.in/), Uttar Pradesh, India who gave me a free ChatGPT account, which contributed a significant part to the completion of this project. Thank you from my heart ❤️
+##### _Update:_ The season ended with the achievement of reaching the semi-finals, yay!
